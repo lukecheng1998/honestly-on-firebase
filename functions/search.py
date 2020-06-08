@@ -7,6 +7,10 @@ from googlesearch import search
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+import pyrebase
+from firebase import firebase
+
+firebase = firebase.FirebaseApplication("https://honestly-on-firebase.firebaseio.com/", None)
 
 # to search
 searchword = ""
@@ -25,6 +29,7 @@ def combine_strings(links):
         articles += ((scrape_article(link)))
     articles = cutString(articles)
     print(articles)
+    return articles
 
 
 def cutString(fullText):
@@ -85,5 +90,10 @@ def printResult(query):
 if __name__=="__main__":
     query= str(sys.argv[1].lower())
     searchword=query
-    combine_strings(get_results(query))
-    
+    ret = combine_strings(get_results(query))
+    data = {
+        'results': ret,
+        'textfield': searchword
+    }
+    result = firebase.post('/honestly-on-firebase/searches', data)
+    print(result)
